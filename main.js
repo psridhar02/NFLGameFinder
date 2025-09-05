@@ -21,8 +21,8 @@ async function loadTeams() {
     card.innerHTML = `
       <img src="${t.team.logos[0].href}" alt="${t.team.displayName}">
       <h3>${t.team.displayName}</h3>
-      <button onclick="loadRoster(${t.team.id})">View Roster</button>
-      <button onclick="loadSchedule(${t.team.id})">View Schedule</button>
+      <button onclick="loadRoster(${t.team.id})">Team Roster</button>
+      <button onclick="loadSchedule(${t.team.id})">Team Schedule</button>
     `;
     results.appendChild(card);
   });
@@ -49,6 +49,28 @@ async function loadRoster(teamId) {
       results.appendChild(card);
     });
   });
+}
+
+// Load individual player stats
+async function loadPlayer(playerId) {
+  results.innerHTML = "<p>Loading player stats...</p>";
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/athletes/${playerId}`);
+  const data = await res.json();
+
+  const stats = data.stats?.[0]?.splits?.categories || [];
+
+  results.innerHTML = `
+    <div class="card">
+      <h2>${data.athlete.displayName}</h2>
+      <img src="${data.athlete.headshot.href}" alt="${data.athlete.displayName}">
+      <h3>Stats This Season</h3>
+      <ul>
+        ${stats.map(cat =>
+          cat.stats.map(s => `<li>${s.displayName}: ${s.displayValue}</li>`).join("")
+        ).join("")}
+      </ul>
+    </div>
+  `;
 }
 
 // Load team schedule

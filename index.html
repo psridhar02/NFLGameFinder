@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NFL Game Finder</title>
     <link rel="stylesheet" href="./styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
   </head>
   <body>
     <header>
-      <h1>NFL Tracker</h1>
+        <div class="logo">
+            <img src="https://1000logos.net/wp-content/uploads/2017/05/NFL-Logo.png" alt="NFL Logo">
+            <h1>NFL Tracker</h1>
+        </div>
+      
+
       <nav>
         <a href="#" onclick="loadTeams()">Teams</a>
         <a href="#" onclick="loadGames()">Games</a>
@@ -17,12 +23,12 @@
     </header>
 
     <main>
-        <form id="searchForm">
-            <input type="search" id="searchInput" placeholder="Find a team">
-            <button type="submit">Search</button>
-        </form>
+      <form id="searchForm">
+        <input type="search" id="searchInput" placeholder="Find a team" />
+        <button type="submit">Search</button>
+      </form>
 
-        <div id="results" class="grid"></div>
+      <div id="results" class="grid"></div>
     </main>
     <script src="./main.js"></script>
   </body>
