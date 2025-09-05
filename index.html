@@ -5,32 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NFL Game Finder</title>
     <link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="styles.css" />
     
   </head>
   <body>
-    <header>
-        <div class="logo">
-            <img src="https://1000logos.net/wp-content/uploads/2017/05/NFL-Logo.png" alt="NFL Logo">
-            <h1>NFL Tracker</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" onclick="goHome()">
+            <img src="https://1000logos.net/wp-content/uploads/2017/05/NFL-Logo.png" alt="NFL Logo" height="40">
+            NFL Tracker
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="loadTeams()">TEAMS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="loadScores()">LIVE SCORES</a></li>
+                </ul>
+                <form id="searchForm" class="d-flex">
+                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Search">
+                    <button class="btn btn-light" type="submit">Search</button>
+                </form>
+            </div>
         </div>
-      
+    </nav>
 
-      <nav>
-        <a href="#" onclick="loadTeams()">TEAMS</a>
-        <a href="#" onclick="loadGames()">GAMES</a>
-        <a href="#" onclick="loadScores()">LIVE SCORES</a>
-      </nav>
-    </header>
-
-    <main>
-      <form id="searchForm">
-        <input type="search" id="searchInput" placeholder="Find a team" />
-        <button type="submit">Search</button>
-      </form>
-
-      <div id="results" class="grid"></div>
+    <main class="container my-4">
+      <div id="results" class="row g-3"></div>
     </main>
+
     <script src="./main.js"></script>
   </body>
 </html>
