@@ -163,12 +163,14 @@ setInterval(() => {
   }
 }, 60000);
 
+// Home Reset
 function goHome() {
     function goHome() {
   results.innerHTML = "<h2 class='text-center'>Welcome to NFL Tracker</h2><p class='text-center'>Search for teams, players, schedules, or check live scores.</p>";
 }
 }
 
+// Search teams and players
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const searchTerm = input.value.toLowerCase();
@@ -200,6 +202,7 @@ form.addEventListener("submit", async (e) => {
   results.innerHTML = `<p>No team or player found for "${searchTerm}".</p>`;
 });
 
+// Player stats across seasons
 async function loadPlayer(playerId, season = 2025) {
   results.innerHTML = "<p>Loading player stats...</p>";
   const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/athletes/${playerId}?season=${season}`);
@@ -226,3 +229,44 @@ async function loadPlayer(playerId, season = 2025) {
     </div>
   `;
 }
+
+// Game Summary
+async function loadGame(gameId) {
+  results.innerHTML = "<p>Loading game stats...</p>";
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${gameId}`);
+  const data = await res.json();
+
+  const comp = data.header.competitions[0];
+  const home = comp.competitors.find(c => c.homeAway === "home");
+  const away = comp.competitors.find(c => c.homeAway === "away");
+
+  results.innerHTML = `
+    <div class="card text-center p-3">
+      <button class="btn btn-secondary mb-2" onclick="loadScores()">⬅ Back</button>
+      <h2>${away.team.displayName} @ ${home.team.displayName}</h2>
+      <h3>${away.score} - ${home.score}</h3>
+      <p><em>${data.header.competitions[0].status.type.detail}</em></p>
+      <h4>Scoring Plays</h4>
+      <div>
+        ${data.scoringPlays.map(play =>
+          `<div class="border-bottom py-2">${play.period.displayValue} ${play.clock.displayValue} – ${play.text}</div>`
+        ).join("") || "<p>No scoring plays available.</p>"}
+      </div>
+    </div>
+  `;
+}
+
+// Auto updates
+let liveGameInterval = null;
+
+async function loadLiveGame(gameId) {
+  if (liveGameInterval) clearInterval(liveGameInterval);
+
+  async function update() {
+    await loadGame(gameId);
+  }
+
+  update(); // first load
+  liveGameInterval = setInterval(update, 30000); // refresh every 30s
+}
+
