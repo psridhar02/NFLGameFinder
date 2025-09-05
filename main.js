@@ -162,3 +162,40 @@ setInterval(() => {
     loadScores();
   }
 }, 60000);
+
+function goHome() {
+    function goHome() {
+  results.innerHTML = "<h2 class='text-center'>Welcome to NFL Tracker</h2><p class='text-center'>Search for teams, players, schedules, or check live scores.</p>";
+}
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const searchTerm = input.value.toLowerCase();
+
+  const res = await fetch(TEAMS_URL);
+  const data = await res.json();
+  const teams = data.sports[0].leagues[0].teams;
+
+  // Search for team
+  const team = teams.find(t => t.team.displayName.toLowerCase().includes(searchTerm));
+  if (team) {
+    loadRoster(team.team.id);
+    return;
+  }
+
+  // Search across rosters for player
+  for (const t of teams) {
+    const rosterRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${t.team.id}/roster`);
+    const rosterData = await rosterRes.json();
+    for (const group of rosterData.athletes) {
+      const player = group.items.find(p => p.displayName.toLowerCase().includes(searchTerm));
+      if (player) {
+        loadPlayer(player.id);
+        return;
+      }
+    }
+  }
+
+  results.innerHTML = `<p>No team or player found for "${searchTerm}".</p>`;
+});
