@@ -70,3 +70,27 @@ async function loadSchedule(teamId) {
     results.appendChild(card);
   });
 }
+
+// Load live scores
+async function loadScores() {
+  results.innerHTML = "<p>Loading live scores...</p>";
+  const res = await fetch(SCOREBOARD_URL);
+  const data = await res.json();
+
+  results.innerHTML = "";
+  data.events.forEach((game) => {
+    const comp = game.competitions[0];
+    const home = comp.competitors.find((c) => c.homeAway === "home");
+    const away = comp.competitors.find((c) => c.homeAway === "away");
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${away.team.displayName} @ ${home.team.displayName}</h3>
+      <p>${away.score} - ${home.score}</p>
+      <p>Status: ${game.status.type.detail}</p>
+    `;
+    results.appendChild(card);
+  });
+}
+
