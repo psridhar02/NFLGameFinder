@@ -113,3 +113,9 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+// Auto-refresh scores every 60s if on scores page
+setInterval(() => {
+  if (results.innerHTML.includes("Status:")) {
+    loadScores();
+  }
+}, 60000);
