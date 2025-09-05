@@ -199,3 +199,30 @@ form.addEventListener("submit", async (e) => {
 
   results.innerHTML = `<p>No team or player found for "${searchTerm}".</p>`;
 });
+
+async function loadPlayer(playerId, season = 2025) {
+  results.innerHTML = "<p>Loading player stats...</p>";
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/athletes/${playerId}?season=${season}`);
+  const data = await res.json();
+  const stats = data.stats?.[0]?.splits?.categories || [];
+
+  results.innerHTML = `
+    <div class="card p-3">
+      <button class="btn btn-secondary mb-2" onclick="goHome()">⬅ Back</button>
+      <h2 class="text-center">${data.athlete.displayName}</h2>
+      <img class="mx-auto d-block" src="${data.athlete.headshot.href}" alt="${data.athlete.displayName}" height="120">
+      <label for="seasonSelect">Choose Season:</label>
+      <select id="seasonSelect" class="form-select mb-3" onchange="loadPlayer(${playerId}, this.value)">
+        ${[2025,2024,2023,2022,2021,2020].map(y => 
+          `<option value="${y}" ${y==season?'selected':''}>${y}</option>`
+        ).join("")}
+      </select>
+      <h3>Stats</h3>
+      <div class="stats-list">
+        ${stats.map(cat => cat.stats.map(s => 
+          `<p><strong>${s.displayName}:</strong> ${s.displayValue || '-'}</p>`
+        ).join("")).join("")}
+      </div>
+    </div>
+  `;
+}
