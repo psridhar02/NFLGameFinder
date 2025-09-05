@@ -94,3 +94,22 @@ async function loadScores() {
   });
 }
 
+// Search team by name
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const searchTerm = input.value.toLowerCase();
+
+  const res = await fetch(TEAMS_URL);
+  const data = await res.json();
+  const teams = data.sports[0].leagues[0].teams;
+  const team = teams.find((t) =>
+    t.team.displayName.toLowerCase().includes(searchTerm)
+  );
+
+  if (team) {
+    loadRoster(team.team.id);
+  } else {
+    results.innerHTML = `<p>No team found for "${searchTerm}".</p>`;
+  }
+});
+
