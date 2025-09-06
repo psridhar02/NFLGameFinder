@@ -2,36 +2,129 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>NFL Game Finder</title>
-    <link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css" />
-    
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+      crossorigin="anonymous"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Tourney:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Your styles -->
+    <link rel="stylesheet" href="./styles/styles.css"/>
   </head>
+
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#" onclick="goHome()">
-            <img src="https://1000logos.net/wp-content/uploads/2017/05/NFL-Logo.png" alt="NFL Logo" height="40">
-            NFL Tracker
-            </a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav me-auto mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="loadTeams()">TEAMS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="loadScores()">LIVE SCORES</a></li>
-                </ul>
-                <form id="searchForm" class="d-flex">
-                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Search">
-                    <button class="btn btn-light" type="submit">Search</button>
-                </form>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#home" id="brandLink">
+          <img src="./images/logo.png" alt="NFL Logo" height="40" id="logoLink" class="me-2"/>
+          NFL HUB
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navContent"
+          aria-controls="navContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="#teams" id="teamsLink">TEAMS</a></li>
+            <li class="nav-item"><a class="nav-link" href="#liveNow" id="gamesLink">GAMES</a></li>
+            <li class="nav-item"><a class="nav-link" href="#about">ABOUT</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" id="liveScoresLink">LIVE SCORES</a></li>
+          </ul>
+
+          <!-- Search: button same height as input via input-group -->
+          <form id="searchForm" class="d-none d-lg-block" role="search">
+            <div class="input-group">
+              <input class="form-control" type="search" id="searchInput" placeholder="Search teams or players"/>
+              <button class="btn btn-light" type="submit">Search</button>
             </div>
+          </form>
         </div>
+      </div>
     </nav>
 
-    <main class="container my-4">
-      <div id="results" class="row g-3"></div>
+    <!-- MAIN CONTENT -->
+    <main>
+      <!-- HERO / COVER -->
+      <section id="home" class="hero d-flex align-items-center justify-content-center text-center">
+        <!-- Replace background image in CSS or set inline with your upload -->
+        <div class="hero-overlay">
+          <h1 class="display-4 fw-bold">Game. Set. Track.</h1>
+          <p class="lead mb-4">Your live NFL stats, schedules, and scores — all in one place.</p>
+          <a href="#teams" class="btn btn-primary btn-lg">Explore Teams</a>
+        </div>
+      </section>
+
+      <!-- LIVE NOW -->
+      <section id="liveNow" class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">Happening Now</h2>
+          <button class="btn btn-outline-primary btn-sm" id="refreshLiveNow">Refresh</button>
+        </div>
+        <div id="liveNowGrid" class="grid"></div>
+        <p id="liveNowEmpty" class="text-muted"></p>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="container py-5">
+        <h2>About</h2>
+        <p>
+          Write about your site here — what it does, why you built it, and how fans can get the most out of it.
+        </p>
+      </section>
+
+      <!-- SECOND SEARCH (on main page) -->
+      <section id="teamSearch" class="container py-4">
+        <h3 class="mb-3">Search Teams</h3>
+        <form id="mainSearchForm">
+          <div class="input-group">
+            <input class="form-control" type="search" id="mainSearchInput" placeholder="Search teams"/>
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TEAMS GRID -->
+      <section id="teams" class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">Teams</h2>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm me-2" id="reloadTeams">Reload</button>
+            <button class="btn btn-outline-secondary btn-sm" id="backHomeFromTeams">Back</button>
+          </div>
+        </div>
+        <div id="teamsGrid" class="grid"></div>
+        <p id="teamsEmpty" class="text-muted"></p>
+      </section>
+
+      <!-- DYNAMIC VIEW (roster / schedule / player / game) -->
+      <section id="dynamicView" class="container py-5 d-none">
+        <div id="results" class="row g-3"></div>
+      </section>
     </main>
 
-    <script src="main.js"></script>
+    <script src="./main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   </body>
 </html>

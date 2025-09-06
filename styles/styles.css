@@ -1,0 +1,71 @@
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: 'Tourney', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+}
+
+/* Navbar: keep compact */
+.navbar { padding-top: 0.2rem; padding-bottom: 0.2rem; }
+
+/* HERO / COVER */
+.hero {
+  min-height: 60vh;
+  background: url('../images/cover.jpg') center/cover no-repeat; /* replace with your image */
+  position: relative;
+}
+.hero .hero-overlay {
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  padding: 3rem 1rem;
+  width: 100%;
+}
+
+/* Reusable grid: 4 per row on desktop */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 992px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 768px) and (max-width: 991px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 576px) and (max-width: 767px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 575px) { .grid { grid-template-columns: 1fr; } }
+
+/* Square cards (teams & roster) */
+.square-card {
+  position: relative;
+  aspect-ratio: 1 / 1;           /* perfect square */
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s ease;
+  text-align: center;
+  padding: 0.75rem;
+}
+.square-card:hover { transform: scale(1.03); }
+.square-card img {
+  max-height: 48%;
+  max-width: 80%;
+  object-fit: contain;
+  margin-bottom: 0.25rem;
+}
+.square-card h3, .square-card h4, .square-card p { margin: 0.25rem 0; }
+.square-card .actions { position: absolute; bottom: 0.75rem; left: 0; right: 0; display: flex; gap: .5rem; justify-content: center; }
+
+/* Generic card for dynamic views */
+.card {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+/* Make input-group button match height naturally (Bootstrap handles it) */
