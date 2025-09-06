@@ -38,7 +38,7 @@ body {
 /* Square cards (teams & roster) */
 .square-card {
   position: relative;
-  aspect-ratio: 1 / 1;           /* perfect square */
+  aspect-ratio: 1 / 1;           
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.08);
@@ -46,7 +46,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform .15s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
   text-align: center;
   padding: 0.75rem;
 }
@@ -68,4 +68,5 @@ body {
   box-shadow: 0 4px 8px rgba(0,0,0,0.08);
 }
 
-/* Make input-group button match height naturally (Bootstrap handles it) */
+
+
