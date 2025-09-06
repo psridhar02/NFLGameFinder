@@ -1,6 +1,3 @@
-// =========================
-// Constants & Elements
-// =========================
 const TEAMS_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams";
 const SCOREBOARD_URL =
@@ -27,7 +24,7 @@ const navSearchInput = document.getElementById("searchInput");
 const mainSearchForm = document.getElementById("mainSearchForm");
 const mainSearchInput = document.getElementById("mainSearchInput");
 
-// Misc controls
+// other
 document
   .getElementById("reloadTeams")
   .addEventListener("click", () => initTeams());
@@ -38,9 +35,7 @@ document
   .getElementById("refreshLiveNow")
   .addEventListener("click", () => loadLiveNow());
 
-// =========================
-// Navigation Helpers
-// =========================
+// Nav helpers
 function showHome() {
   dynamicView.classList.add("d-none");
   document.getElementById("home").scrollIntoView({ behavior: "smooth" });
@@ -67,9 +62,7 @@ liveScoresLink.addEventListener("click", async (e) => {
   await loadScoresView();
 });
 
-// =========================
 // Data loaders for home sections
-// =========================
 async function initTeams() {
   teamsGrid.innerHTML = `<div class="col-12 text-center text-muted">Loading teams...</div>`;
   teamsEmpty.textContent = "";
@@ -83,15 +76,21 @@ async function initTeams() {
       const card = document.createElement("div");
       card.className = "square-card";
       card.style.backgroundColor = team.color ? `#${team.color}` : "#ffffff";
-      card.style.color = team.alternateColor ? `#${team.alternateColor}` : "#000000";
+      card.style.color = team.alternateColor
+        ? `#${team.alternateColor}`
+        : "#000000";
 
       card.innerHTML = `
         <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
           <img src="${team.logos?.[0]?.href || ""}" alt="${team.displayName}">
           <h4 class="mt-1">${team.displayName}</h4>
           <div class="actions">
-            <button class="btn btn-sm btn-light" data-action="roster" data-id="${team.id}">Roster</button>
-            <button class="btn btn-sm btn-dark" data-action="schedule" data-id="${team.id}">Schedule</button>
+            <button class="btn btn-sm btn-light" data-action="roster" data-id="${
+              team.id
+            }">Roster</button>
+            <button class="btn btn-sm btn-dark" data-action="schedule" data-id="${
+              team.id
+            }">Schedule</button>
           </div>
         </div>
       `;
@@ -148,7 +147,9 @@ async function loadLiveNow() {
           </div>
         </div>
       `;
-      card.querySelector("button").addEventListener("click", () => loadGameView(game.id));
+      card
+        .querySelector("button")
+        .addEventListener("click", () => loadGameView(game.id));
       liveNowGrid.appendChild(card);
     });
   } catch (err) {
@@ -158,26 +159,23 @@ async function loadLiveNow() {
   }
 }
 
-// Initial home loads
+// Init home loads
 initTeams();
 loadLiveNow();
 
-// =========================
-// Shared dynamic view toggler
-// =========================
 function showDynamic() {
   dynamicView.classList.remove("d-none");
   dynamicView.scrollIntoView({ behavior: "smooth" });
 }
 
-// =========================
-// Roster / Team Game View
-// =========================
+// Roster and team game view
 async function loadRosterView(teamId, teamName = "Team") {
   results.innerHTML = `<p>Loading roster...</p>`;
   showDynamic();
   try {
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${teamId}/roster`);
+    const res = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${teamId}/roster`
+    );
     const data = await res.json();
 
     const wrap = document.createElement("div");
@@ -196,7 +194,6 @@ async function loadRosterView(teamId, teamName = "Team") {
     results.innerHTML = "";
     results.appendChild(wrap);
 
-    // Render roster
     const rosterGrid = document.getElementById("rosterGrid");
     data.athletes.forEach((group) => {
       group.items.forEach((player) => {
@@ -204,18 +201,20 @@ async function loadRosterView(teamId, teamName = "Team") {
         card.className = "square-card";
         card.innerHTML = `
           <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-            <img src="${player.headshot?.href || ""}" alt="${player.displayName}">
+            <img src="${player.headshot?.href || ""}" alt="${
+          player.displayName
+        }">
             <h5 class="mt-1">${player.displayName}</h5>
-            <p class="mb-1">#${player.jersey || "-"} • ${player.position?.abbreviation || ""}</p>
+            <p class="mb-1">#${player.jersey || "-"} • ${
+          player.position?.abbreviation || ""
+        }</p>
           </div>
         `;
         rosterGrid.appendChild(card);
       });
     });
 
-    // Load game info for this team
     loadTeamGameInfo(teamId);
-
   } catch (err) {
     results.innerHTML = `<p class="text-danger">Failed to load roster.</p>`;
     console.error(err);
@@ -229,7 +228,7 @@ async function loadTeamGameInfo(teamId) {
     const data = await res.json();
     const events = data.events || [];
 
-    // Look for a live or upcoming game involving this team
+    // Look for a live or upcoming game involving whatever team
     const game = events.find((e) =>
       e.competitions[0].competitors.some((c) => c.team.id == teamId)
     );
@@ -258,7 +257,9 @@ async function loadTeamGameInfo(teamId) {
       gameInfo.innerHTML = `
         <div class="alert alert-info text-center">
           <p>No game is happening at the moment.</p>
-          <p>Next game: <strong>${away.team.displayName} @ ${home.team.displayName}</strong></p>
+          <p>Next game: <strong>${away.team.displayName} @ ${
+        home.team.displayName
+      }</strong></p>
           <p>${new Date(game.date).toLocaleString()}</p>
         </div>
       `;
@@ -279,12 +280,13 @@ async function loadTeamGameInfo(teamId) {
   }
 }
 
-
 async function loadScheduleView(teamId, teamName = "Team") {
   results.innerHTML = `<p>Loading schedule...</p>`;
   showDynamic();
   try {
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${teamId}/schedule`);
+    const res = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${teamId}/schedule`
+    );
     const data = await res.json();
 
     const wrap = document.createElement("div");
@@ -309,11 +311,15 @@ async function loadScheduleView(teamId, teamName = "Team") {
           <h5 class="mb-1">${game.name}</h5>
           <p class="mb-1">${new Date(game.date).toLocaleString()}</p>
           <div class="actions">
-            <button class="btn btn-sm btn-primary" data-id="${game.id}">View Game</button>
+            <button class="btn btn-sm btn-primary" data-id="${
+              game.id
+            }">View Game</button>
           </div>
         </div>
       `;
-      card.querySelector("button").addEventListener("click", () => loadGameView(game.id));
+      card
+        .querySelector("button")
+        .addEventListener("click", () => loadGameView(game.id));
       grid.appendChild(card);
     });
   } catch (err) {
@@ -322,16 +328,18 @@ async function loadScheduleView(teamId, teamName = "Team") {
   }
 }
 
-// =========================
 // Player View
-// =========================
 async function loadPlayer(playerId, season = new Date().getFullYear()) {
   results.innerHTML = "<p>Loading player stats...</p>";
   try {
-    const profileRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/athletes/${playerId}`);
+    const profileRes = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/athletes/${playerId}`
+    );
     const profileData = await profileRes.json();
 
-    const statsRes = await fetch(`https://site.api.espn.com/apis/common/v3/sports/football/nfl/athletes/${playerId}/stats?season=${season}`);
+    const statsRes = await fetch(
+      `https://site.api.espn.com/apis/common/v3/sports/football/nfl/athletes/${playerId}/stats?season=${season}`
+    );
     const statsData = await statsRes.json();
 
     const athlete = profileData.athlete || {};
@@ -349,17 +357,33 @@ async function loadPlayer(playerId, season = new Date().getFullYear()) {
         <label for="seasonSelect">Choose Season:</label>
         <select id="seasonSelect" class="form-select mb-3" onchange="loadPlayer(${playerId}, this.value)">
           ${[2025, 2024, 2023, 2022, 2021, 2020]
-            .map((y) => `<option value="${y}" ${y == season ? "selected" : ""}>${y}</option>`)
+            .map(
+              (y) =>
+                `<option value="${y}" ${
+                  y == season ? "selected" : ""
+                }>${y}</option>`
+            )
             .join("")}
         </select>
         <h3>Stats</h3>
         <div class="stats-list">
           ${
             stats.length > 0
-              ? stats.map((cat) => `
+              ? stats
+                  .map(
+                    (cat) => `
                   <h5>${cat.displayName}</h5>
-                  ${cat.stats.map((s) => `<p><strong>${s.displayName}:</strong> ${s.displayValue || "-"}</p>`).join("")}
-                `).join("")
+                  ${cat.stats
+                    .map(
+                      (s) =>
+                        `<p><strong>${s.displayName}:</strong> ${
+                          s.displayValue || "-"
+                        }</p>`
+                    )
+                    .join("")}
+                `
+                  )
+                  .join("")
               : "<p>No stats available for this season.</p>"
           }
         </div>
@@ -371,14 +395,14 @@ async function loadPlayer(playerId, season = new Date().getFullYear()) {
   }
 }
 
-// =========================
 // Game View
-// =========================
 async function loadGameView(gameId) {
   results.innerHTML = `<p>Loading game...</p>`;
   showDynamic();
   try {
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${gameId}`);
+    const res = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${gameId}`
+    );
     const data = await res.json();
 
     const comp = data.header?.competitions?.[0];
@@ -401,7 +425,12 @@ async function loadGameView(gameId) {
         <div>
           ${
             (data.scoringPlays || []).length
-              ? data.scoringPlays.map((play) => `<div class="border-bottom py-2">${play.period.displayValue} ${play.clock.displayValue} – ${play.text}</div>`).join("")
+              ? data.scoringPlays
+                  .map(
+                    (play) =>
+                      `<div class="border-bottom py-2">${play.period.displayValue} ${play.clock.displayValue} – ${play.text}</div>`
+                  )
+                  .join("")
               : "<p class='text-muted'>No scoring plays available.</p>"
           }
         </div>
@@ -413,9 +442,7 @@ async function loadGameView(gameId) {
   }
 }
 
-// =========================
 // Live Scores full view
-// =========================
 async function loadScoresView() {
   results.innerHTML = `<p>Loading live scores...</p>`;
   showDynamic();
@@ -454,7 +481,9 @@ async function loadScoresView() {
           </div>
         </div>
       `;
-      card.querySelector("button").addEventListener("click", () => loadGameView(game.id));
+      card
+        .querySelector("button")
+        .addEventListener("click", () => loadGameView(game.id));
       container.appendChild(card);
     });
     frag.appendChild(container);
@@ -462,16 +491,16 @@ async function loadScoresView() {
     results.innerHTML = "";
     results.appendChild(frag);
 
-    document.getElementById("refreshScores").addEventListener("click", loadScoresView);
+    document
+      .getElementById("refreshScores")
+      .addEventListener("click", loadScoresView);
   } catch (err) {
     results.innerHTML = `<p class="text-danger">Failed to load live scores.</p>`;
     console.error(err);
   }
 }
 
-// =========================
 // Search
-// =========================
 [
   [navSearchForm, navSearchInput],
   [mainSearchForm, mainSearchInput],
@@ -487,7 +516,9 @@ async function loadScoresView() {
       const teams = data.sports[0].leagues[0].teams;
 
       // Try team match
-      const t = teams.find((x) => x.team.displayName.toLowerCase().includes(term));
+      const t = teams.find((x) =>
+        x.team.displayName.toLowerCase().includes(term)
+      );
       if (t) {
         await loadRosterView(t.team.id, t.team.displayName);
         return;
@@ -495,10 +526,14 @@ async function loadScoresView() {
 
       // Search across rosters for player
       for (const x of teams) {
-        const rosterRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${x.team.id}/roster`);
+        const rosterRes = await fetch(
+          `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${x.team.id}/roster`
+        );
         const rosterData = await rosterRes.json();
         for (const group of rosterData.athletes) {
-          const player = group.items.find((p) => p.displayName.toLowerCase().includes(term));
+          const player = group.items.find((p) =>
+            p.displayName.toLowerCase().includes(term)
+          );
           if (player) {
             await loadPlayer(player.id);
             return;
@@ -506,7 +541,9 @@ async function loadScoresView() {
         }
       }
 
-      results.innerHTML = `<p>No team or player found for "${escapeHtml(term)}".</p>`;
+      results.innerHTML = `<p>No team or player found for "${escapeHtml(
+        term
+      )}".</p>`;
       showDynamic();
     } catch (err) {
       console.error(err);
@@ -514,12 +551,14 @@ async function loadScoresView() {
   });
 });
 
-// =========================
-// Utilities
-// =========================
+// extra stuff
 function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, (s) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s])
+  return str.replace(
+    /[&<>"']/g,
+    (s) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[
+        s
+      ])
   );
 }
 function escapeQuotes(str) {

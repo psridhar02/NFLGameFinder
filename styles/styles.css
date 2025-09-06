@@ -4,6 +4,7 @@ html {
 }
 body {
   font-family: 'Tourney', sans-serif;
+  font font-weight: bold;
   margin: 0;
   padding: 0;
   background: #f8f9fa;
@@ -15,13 +16,13 @@ body {
 /* HERO / COVER */
 .hero {
   min-height: 60vh;
-  background: url('../images/cover.jpg') center/cover no-repeat; /* replace with your image */
+  background: url('../images/field.jpg') center/cover no-repeat; /* replace with your image */
   position: relative;
 }
 .hero .hero-overlay {
   background: rgba(0, 0, 0, 0.45);
   color: #fff;
-  padding: 3rem 1rem;
+  padding: 9rem 1rem;
   width: 100%;
 }
 
