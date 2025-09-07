@@ -35,6 +35,11 @@ document
   .getElementById("refreshLiveNow")
   .addEventListener("click", () => loadLiveNow());
 
+// --- CHANGED/ADDED --- global state variables to manage back/restore
+let previousView = null;
+let currentTeamId = null;
+let teamsSnapshotHTML = null; // to restore teams grid when needed
+
 // Nav helpers
 function showHome() {
   dynamicView.classList.add("d-none");
@@ -75,6 +80,7 @@ async function initTeams() {
     teams.forEach(({ team }) => {
       const card = document.createElement("div");
       card.className = "square-card";
+      card.setAttribute("data-team-id", team.id); // --- ADDED for filtering/restore ---
       card.style.backgroundColor = team.color ? `#${team.color}` : "#ffffff";
       card.style.color = team.alternateColor
         ? `#${team.alternateColor}`
@@ -100,18 +106,57 @@ async function initTeams() {
         if (!btn) return;
         const action = btn.getAttribute("data-action");
         const id = btn.getAttribute("data-id");
-        if (action === "roster") loadRosterView(id, team.displayName);
-        if (action === "schedule") loadScheduleView(id, team.displayName);
+
+        if (action === "roster") {
+          // When user clicks ROSTER from the teams grid, show only that team's card
+          showOnlyTeamCard(id);
+          loadRosterView(id, team.displayName);
+        }
+        if (action === "schedule") {
+          showOnlyTeamCard(id);
+          loadScheduleView(id, team.displayName);
+        }
       });
 
       teamsGrid.appendChild(card);
     });
 
     if (!teams.length) teamsEmpty.textContent = "No teams available.";
+    // Save snapshot of full teams HTML so we can restore after a search/detail
+    teamsSnapshotHTML = teamsGrid.innerHTML;
   } catch (err) {
     teamsGrid.innerHTML = "";
     teamsEmpty.textContent = "Failed to load teams.";
     console.error(err);
+  }
+}
+
+// --- CHANGED/ADDED --- helper to show only a single team card and hide others
+function showOnlyTeamCard(teamId) {
+  if (!teamsSnapshotHTML) {
+    teamsSnapshotHTML = teamsGrid.innerHTML;
+  }
+  const cards = Array.from(teamsGrid.children);
+  cards.forEach((c) => {
+    if (c.getAttribute("data-team-id") === String(teamId)) {
+      c.style.display = ""; // show
+    } else {
+      c.style.display = "none"; // hide
+    }
+  });
+  // scroll to teams section
+  document.getElementById("teams").scrollIntoView({ behavior: "smooth" });
+}
+
+// --- CHANGED/ADDED --- restore the full teams grid
+function restoreAllTeamCards() {
+  if (teamsSnapshotHTML) {
+    // restore current DOM (we kept same nodes, just hid them — so restore display)
+    const cards = Array.from(teamsGrid.children);
+    cards.forEach((c) => {
+      c.style.display = "";
+    });
+    document.getElementById("teams").scrollIntoView({ behavior: "smooth" });
   }
 }
 
@@ -170,6 +215,10 @@ function showDynamic() {
 
 // Roster and team game view
 async function loadRosterView(teamId, teamName = "Team") {
+  // --- CHANGED --- save previous view state for goBack
+  previousView = "teams";
+  currentTeamId = teamId;
+
   results.innerHTML = `<p>Loading roster...</p>`;
   showDynamic();
   try {
@@ -178,47 +227,129 @@ async function loadRosterView(teamId, teamName = "Team") {
     );
     const data = await res.json();
 
+    // build roster view with tabs and a schedule button beside back
     const wrap = document.createElement("div");
     wrap.innerHTML = `
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">${teamName} – Roster</h2>
-        <div>
-          <button class="btn btn-secondary me-2" onclick="history.back()">⬅ Back</button>
-        </div>
+          <div>
+            <button class="btn btn-secondary me-2" id="rosterBackBtn">⬅ Back</button>
+            <button class="btn btn-outline-dark" id="viewScheduleBtn">View Schedule</button>
+          </div>
+          <h2 class="mb-0">${teamName} – Roster</h2>
       </div>
+      
       <div class="mb-3" id="teamGameInfo">
-        <p>Loading current game info...</p>
+          <p>Loading current game info...</p>
       </div>
-      <div class="grid" id="rosterGrid"></div>
-    `;
+        
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" id="offenseTab" href="#" data-tab="offense">Offense</a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" id="defenseTab" href="#" data-tab="defense">Defense</a>
+        </li>
+      </ul>
+      
+      <div id="rosterGrid" class="grid"></div>
+`;
+
     results.innerHTML = "";
     results.appendChild(wrap);
 
-    const rosterGrid = document.getElementById("rosterGrid");
-    data.athletes.forEach((group) => {
-      group.items.forEach((player) => {
-        const card = document.createElement("div");
-        card.className = "square-card";
-        card.innerHTML = `
-          <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-            <img src="${player.headshot?.href || ""}" alt="${
-          player.displayName
-        }">
-            <h5 class="mt-1">${player.displayName}</h5>
-            <p class="mb-1">#${player.jersey || "-"} • ${
-          player.position?.abbreviation || ""
-        }</p>
-          </div>
-        `;
-        rosterGrid.appendChild(card);
-      });
+    // Attach back & schedule handlers
+    document.getElementById("rosterBackBtn").addEventListener("click", () => {
+      // restore team cards and go to teams section
+      restoreAllTeamCards();
+      showHome();
     });
+
+    document.getElementById("viewScheduleBtn").addEventListener("click", () =>
+      loadScheduleView(teamId, teamName)
+    );
+
+    // Tab switching
+    const offenseTab = document.getElementById("offenseTab");
+    const defenseTab = document.getElementById("defenseTab");
+    function setActiveTab(tabName) {
+      offenseTab.classList.toggle("active", tabName === "offense");
+      defenseTab.classList.toggle("active", tabName === "defense");
+      // render players for that tab
+      renderRosterSplit(tabName, data);
+    }
+    offenseTab.addEventListener("click", (e) => {
+      e.preventDefault();
+      setActiveTab("offense");
+    });
+    defenseTab.addEventListener("click", (e) => {
+      e.preventDefault();
+      setActiveTab("defense");
+    });
+
+    // initial render — use helper that splits roster & orders players
+    setActiveTab("offense");
 
     loadTeamGameInfo(teamId);
   } catch (err) {
     results.innerHTML = `<p class="text-danger">Failed to load roster.</p>`;
     console.error(err);
   }
+}
+
+// --- CHANGED/ADDED --- helper to render roster tabs and ordering by "popularity"
+// Note: popularity heuristic: players with headshot first, then by jersey number (asc).
+// If you have a real popularity field, replace the sorting function accordingly.
+function renderRosterSplit(tabName, rosterData) {
+  const rosterGrid = document.getElementById("rosterGrid");
+  rosterGrid.innerHTML = "";
+
+  // gather all players into a flat array (your API uses groups)
+  const players = [];
+  (rosterData.athletes || []).forEach((group) => {
+    (group.items || []).forEach((p) => players.push(p));
+  });
+
+  // use your splitRoster function to partition
+  const { offense, defense } = splitRoster(players);
+
+  const chosen = tabName === "offense" ? offense : defense;
+
+  // ordering: players with headshot first, then by jersey number (numeric)
+  chosen.sort((a, b) => {
+    const aHas = a.headshot?.href ? 0 : 1;
+    const bHas = b.headshot?.href ? 0 : 1;
+    if (aHas !== bHas) return aHas - bHas;
+    const an = Number(a.jersey || 9999);
+    const bn = Number(b.jersey || 9999);
+    return an - bn;
+  });
+
+  if (!chosen.length) {
+    rosterGrid.innerHTML = `<p class="text-muted">No players in this group.</p>`;
+    return;
+  }
+
+  chosen.forEach((player) => {
+    const card = document.createElement("div");
+    card.className = "square-card";
+    card.innerHTML = `
+      <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+        ${player.headshot?.href ? `<img src="${player.headshot.href}" alt="${player.displayName}">` : ""}
+        <h5 class="mt-1">${player.displayName}</h5>
+        <p class="mb-1">#${player.jersey || "-"} • ${
+      player.position?.abbreviation || ""
+    }</p>
+        <div class="actions">
+          <button class="btn btn-sm btn-primary" data-player-id="${player.id}">View Player</button>
+        </div>
+      </div>
+    `;
+    card
+      .querySelector("button")
+      .addEventListener("click", () => loadPlayer(player.id));
+    rosterGrid.appendChild(card);
+  });
 }
 
 async function loadTeamGameInfo(teamId) {
@@ -281,6 +412,10 @@ async function loadTeamGameInfo(teamId) {
 }
 
 async function loadScheduleView(teamId, teamName = "Team") {
+  // --- CHANGED --- remember previous view
+  previousView = "teams";
+  currentTeamId = teamId;
+
   results.innerHTML = `<p>Loading schedule...</p>`;
   showDynamic();
   try {
@@ -292,15 +427,20 @@ async function loadScheduleView(teamId, teamName = "Team") {
     const wrap = document.createElement("div");
     wrap.innerHTML = `
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">${teamName} – Schedule</h2>
         <div>
-          <button class="btn btn-secondary" onclick="history.back()">⬅ Back</button>
+          <button class="btn btn-secondary" id="scheduleBackBtn">⬅ Back</button>
         </div>
+        <h2 class="mb-0">${teamName} – Schedule</h2>
       </div>
       <div class="grid" id="scheduleGrid"></div>
     `;
     results.innerHTML = "";
     results.appendChild(wrap);
+
+    document.getElementById("scheduleBackBtn").addEventListener("click", () => {
+      restoreAllTeamCards();
+      showHome();
+    });
 
     const grid = document.getElementById("scheduleGrid");
     (data.events || []).forEach((game) => {
@@ -520,6 +660,8 @@ async function loadScoresView() {
         x.team.displayName.toLowerCase().includes(term)
       );
       if (t) {
+        // --- CHANGED --- show only the matched team's card in the grid and then open roster
+        showOnlyTeamCard(t.team.id);
         await loadRosterView(t.team.id, t.team.displayName);
         return;
       }
@@ -554,35 +696,67 @@ async function loadScoresView() {
 // go back
 function goBack() {
   if (previousView === "teams") {
-    loadTeams(); // show all 32 teams again
+    // restore teams and scroll
+    restoreAllTeamCards();
+    document.getElementById("teams").scrollIntoView({ behavior: "smooth" });
   } else if (previousView === "teamRoster") {
-    loadTeamCard(currentTeamId); // reload just that team’s card
+    // show that team's roster again
+    if (currentTeamId) loadRosterView(currentTeamId);
   } else if (previousView === "teamSchedule") {
-    loadTeamCard(currentTeamId);
+    if (currentTeamId) loadScheduleView(currentTeamId);
+  } else {
+    // default fallback
+    showHome();
   }
 }
 
 // split the rosters
 function splitRoster(players) {
-  const offensePositions = ["QB","RB","WR","TE","OL","C","T","G","K","P"];
-  const defensePositions = ["DL","DE","DT","LB","MLB","OLB","ILB","CB","S","FS","SS"];
+  const offensePositions = [
+    "QB",
+    "RB",
+    "WR",
+    "TE",
+    "OL",
+    "C",
+    "T",
+    "G",
+    "K",
+    "P",
+  ];
+  const defensePositions = [
+    "DL",
+    "DE",
+    "DT",
+    "LB",
+    "MLB",
+    "OLB",
+    "ILB",
+    "CB",
+    "S",
+    "FS",
+    "SS",
+  ];
 
   let offense = [];
   let defense = [];
 
-  players.forEach(p => {
+  players.forEach((p) => {
     if (offensePositions.includes(p.position.abbreviation)) offense.push(p);
-    else if (defensePositions.includes(p.position.abbreviation)) defense.push(p);
+    else if (defensePositions.includes(p.position.abbreviation))
+      defense.push(p);
   });
 
   // Sort (QB first, then WR, RB, etc.)
-  const positionOrder = ["QB","WR","RB","TE","OL"];
-  offense.sort((a,b) => positionOrder.indexOf(a.position.abbreviation) - positionOrder.indexOf(b.position.abbreviation));
+  const positionOrder = ["QB", "WR", "RB", "TE", "OL"];
+  offense.sort(
+    (a, b) =>
+      positionOrder.indexOf(a.position.abbreviation) -
+      positionOrder.indexOf(b.position.abbreviation)
+  );
 
   return { offense, defense };
 }
-
-
 
 // extra stuff
 function escapeHtml(str) {
