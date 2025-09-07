@@ -35,10 +35,10 @@ document
   .getElementById("refreshLiveNow")
   .addEventListener("click", () => loadLiveNow());
 
-// --- CHANGED/ADDED --- global state variables to manage back/restore
+// Restore the team grid when needed
 let previousView = null;
 let currentTeamId = null;
-let teamsSnapshotHTML = null; // to restore teams grid when needed
+let teamsSnapshotHTML = null;
 
 // Nav helpers
 function showHome() {
@@ -131,7 +131,7 @@ async function initTeams() {
   }
 }
 
-// --- CHANGED/ADDED --- helper to show only a single team card and hide others
+// helper to show only a single team card and hide others
 function showOnlyTeamCard(teamId) {
   if (!teamsSnapshotHTML) {
     teamsSnapshotHTML = teamsGrid.innerHTML;
@@ -148,7 +148,7 @@ function showOnlyTeamCard(teamId) {
   document.getElementById("teams").scrollIntoView({ behavior: "smooth" });
 }
 
-// --- CHANGED/ADDED --- restore the full teams grid
+// restore the full teams grid
 function restoreAllTeamCards() {
   if (teamsSnapshotHTML) {
     // restore current DOM (we kept same nodes, just hid them — so restore display)
@@ -215,7 +215,7 @@ function showDynamic() {
 
 // Roster and team game view
 async function loadRosterView(teamId, teamName = "Team") {
-  // --- CHANGED --- save previous view state for goBack
+  // save previous view state for goBack
   previousView = "teams";
   currentTeamId = teamId;
 
@@ -265,9 +265,9 @@ async function loadRosterView(teamId, teamName = "Team") {
       showHome();
     });
 
-    document.getElementById("viewScheduleBtn").addEventListener("click", () =>
-      loadScheduleView(teamId, teamName)
-    );
+    document
+      .getElementById("viewScheduleBtn")
+      .addEventListener("click", () => loadScheduleView(teamId, teamName));
 
     // Tab switching
     const offenseTab = document.getElementById("offenseTab");
@@ -297,9 +297,7 @@ async function loadRosterView(teamId, teamName = "Team") {
   }
 }
 
-// --- CHANGED/ADDED --- helper to render roster tabs and ordering by "popularity"
-// Note: popularity heuristic: players with headshot first, then by jersey number (asc).
-// If you have a real popularity field, replace the sorting function accordingly.
+//  render roster tabs and ordering by "popularity"
 function renderRosterSplit(tabName, rosterData) {
   const rosterGrid = document.getElementById("rosterGrid");
   rosterGrid.innerHTML = "";
@@ -335,13 +333,17 @@ function renderRosterSplit(tabName, rosterData) {
     card.className = "square-card";
     card.innerHTML = `
       <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-        ${player.headshot?.href ? `<img src="${player.headshot.href}" alt="${player.displayName}">` : ""}
+        ${
+          player.headshot?.href
+            ? `<img src="${player.headshot.href}" alt="${player.displayName}">`
+            : ""
+        }
         <h5 class="mt-1">${player.displayName}</h5>
         <p class="mb-1">#${player.jersey || "-"} • ${
       player.position?.abbreviation || ""
-    }</p>
+    } </p>
         <div class="actions">
-          <button class="btn btn-sm btn-primary" data-player-id="${player.id}">View Player</button>
+          <button class="btn btn-sm btn-secondary" disabled>Player</button>
         </div>
       </div>
     `;
@@ -412,7 +414,7 @@ async function loadTeamGameInfo(teamId) {
 }
 
 async function loadScheduleView(teamId, teamName = "Team") {
-  // --- CHANGED --- remember previous view
+  //remember previous view
   previousView = "teams";
   currentTeamId = teamId;
 
@@ -650,6 +652,10 @@ async function loadScoresView() {
     const term = input.value.trim().toLowerCase();
     if (!term) return;
 
+    // grab or create the message element under your search bar
+    const searchMessage = document.getElementById("searchMessage");
+    searchMessage.textContent = ""; // clear any old message
+
     try {
       const res = await fetch(TEAMS_URL);
       const data = await res.json();
@@ -660,8 +666,9 @@ async function loadScoresView() {
         x.team.displayName.toLowerCase().includes(term)
       );
       if (t) {
-        // --- CHANGED --- show only the matched team's card in the grid and then open roster
+        // optional: show only that team’s card
         showOnlyTeamCard(t.team.id);
+
         await loadRosterView(t.team.id, t.team.displayName);
         return;
       }
@@ -683,15 +690,15 @@ async function loadScoresView() {
         }
       }
 
-      results.innerHTML = `<p>No team or player found for "${escapeHtml(
-        term
-      )}".</p>`;
-      showDynamic();
+      // Nothing matched
+      searchMessage.innerHTML = `No team or player found for "${escapeHtml(term)}".`;
     } catch (err) {
       console.error(err);
+      searchMessage.textContent = "Search failed. Try again later.";
     }
   });
 });
+
 
 // go back
 function goBack() {
