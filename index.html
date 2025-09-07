@@ -27,7 +27,11 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="#home" id="brandLink">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="#home"
+          id="brandLink"
+        >
           <img
             src="./images/logo.png"
             alt="NFL Logo"
@@ -52,10 +56,18 @@
 
         <div class="collapse navbar-collapse" id="navContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" href="#teams" id="teamsLink">TEAMS</a></li>
-            <li class="nav-item"><a class="nav-link" href="#liveNow" id="gamesLink">GAMES</a></li>
-            <li class="nav-item"><a class="nav-link" href="#about">ABOUT</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" id="liveScoresLink">LIVE SCORES</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#teams" id="teamsLink">TEAMS</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#liveNow" id="gamesLink">GAMES</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#about">ABOUT</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" id="liveScoresLink">LIVE SCORES</a>
+            </li>
           </ul>
 
           <!-- Navbar Search -->
@@ -78,10 +90,15 @@
     <!-- MAIN CONTENT -->
     <main>
       <!-- HERO -->
-      <section id="home" class="hero d-flex align-items-center justify-content-center text-center">
+      <section
+        id="home"
+        class="hero d-flex align-items-center justify-content-center text-center"
+      >
         <div class="hero-overlay">
           <h1 class="display-4 fw-bold">Game. Set. Track.</h1>
-          <p class="lead mb-4">Your live NFL stats, schedules, and scores: all in one place.</p>
+          <p class="lead mb-4">
+            Your live NFL stats, schedules, and scores: all in one place.
+          </p>
           <a href="#teams" class="btn btn-primary btn-lg">Explore Teams</a>
         </div>
       </section>
@@ -90,7 +107,9 @@
       <section id="liveNow" class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="mb-0">Happening Now</h2>
-          <button class="btn btn-primary btn-sm" id="refreshLiveNow">Refresh</button>
+          <button class="btn btn-primary btn-sm" id="refreshLiveNow">
+            Refresh
+          </button>
         </div>
         <div id="liveNowGrid" class="grid"></div>
         <p id="liveNowEmpty" class="text-muted"></p>
@@ -100,10 +119,10 @@
       <section id="about" class="container py-5">
         <h2>About</h2>
         <p>
-          NFL Hub is the ultimate destination for football fans who want to stay connected
-          to the action at all times. Our platform provides real-time score updates, complete
-          team lists, player rosters, and detailed schedules to keep you up to date throughout
-          the season.
+          NFL Hub is the ultimate destination for football fans who want to stay
+          connected to the action at all times. Our platform provides real-time
+          score updates, complete team lists, player rosters, and detailed
+          schedules to keep you up to date throughout the season.
         </p>
       </section>
 
@@ -129,8 +148,18 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="mb-0">Teams</h2>
           <div>
-            <button class="btn btn-outline-secondary btn-sm me-2" id="reloadTeams">Reload</button>
-            <button class="btn btn-outline-secondary btn-sm" id="backHomeFromTeams">Back</button>
+            <button
+              class="btn btn-outline-secondary btn-sm me-2"
+              id="reloadTeams"
+            >
+              Reload
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              id="backHomeFromTeams"
+            >
+              Back
+            </button>
           </div>
         </div>
         <div id="teamsGrid" class="grid"></div>
@@ -145,7 +174,9 @@
 
     <!-- Footer -->
     <footer class="site-footer">
-      <p>&copy; 2025 NFL HUB created by Preethi Sridhar. All rights reserved.</p>
+      <p>
+        &copy; 2025 NFL HUB created by Preethi Sridhar. All rights reserved.
+      </p>
     </footer>
 
     <script src="./main.js"></script>
