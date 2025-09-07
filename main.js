@@ -551,6 +551,18 @@ async function loadScoresView() {
   });
 });
 
+// go back
+function goBack() {
+  if (previousView === "teams") {
+    loadTeams(); // show all 32 teams again
+  } else if (previousView === "teamRoster") {
+    loadTeamCard(currentTeamId); // reload just that team’s card
+  } else if (previousView === "teamSchedule") {
+    loadTeamCard(currentTeamId);
+  }
+}
+
+
 // extra stuff
 function escapeHtml(str) {
   return str.replace(
