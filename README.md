@@ -31,5 +31,6 @@ The site connects to the public **ESPN NFL API** to display live scores, full te
 - Include **historical game results & charts**.  
 
 **View Website:** https://psridhar02.github.io/NFLGameFinder/
+
 **GitHub Repo Link:** https://github.com/psridhar02/NFLGameFinder
 
