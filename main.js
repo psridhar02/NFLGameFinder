@@ -562,6 +562,27 @@ function goBack() {
   }
 }
 
+// split the rosters
+function splitRoster(players) {
+  const offensePositions = ["QB","RB","WR","TE","OL","C","T","G","K","P"];
+  const defensePositions = ["DL","DE","DT","LB","MLB","OLB","ILB","CB","S","FS","SS"];
+
+  let offense = [];
+  let defense = [];
+
+  players.forEach(p => {
+    if (offensePositions.includes(p.position.abbreviation)) offense.push(p);
+    else if (defensePositions.includes(p.position.abbreviation)) defense.push(p);
+  });
+
+  // Sort (QB first, then WR, RB, etc.)
+  const positionOrder = ["QB","WR","RB","TE","OL"];
+  offense.sort((a,b) => positionOrder.indexOf(a.position.abbreviation) - positionOrder.indexOf(b.position.abbreviation));
+
+  return { offense, defense };
+}
+
+
 
 // extra stuff
 function escapeHtml(str) {
